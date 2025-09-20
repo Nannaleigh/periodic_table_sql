@@ -1,7 +1,7 @@
 #!/bin/bash
 PSQL="psql --username=freecodecamp --dbname=periodic_table -t --no-align -c"
 
-if [[ -z "$1"]];
+if [[ -z "$1" ]]
 then 
 echo "Please provide an element as an argument."
 exit 0
@@ -11,10 +11,24 @@ INPUT=$1
 
 if [[ $INPUT =~ ^[0-9]+$ ]]
 then
-CONDITION="e.atomic_number = $INPUT";
+CONDITION="e.atomic_number = $INPUT"
 elif [[ ${#INPUT} -le 2 ]]
 then 
-CONDITION="e.symbol ILIKE '$INPUT'";
+CONDITION="e.symbol ILIKE '$INPUT'"
 else
-CONDITION="e.name ILIKE '$INPUT'";
+CONDITION="e.name ILIKE '$INPUT'"
+fi
+
+QUERY="SELECT e.atomic_number, e.name, e.symbol, t.type, p.atomic_mass, p.melting_point_celisus, p.boiling_point_celsius
+FROM elements e
+JOIN properties p USING(atomic_number)
+JOIN types t USING(type_id)
+WHERE $CONDITION;"
+
+RESULT=${$PSQL "$QUERY"}
+
+if [[ -z "$RESULT" ]] 
+
+then
+echo "I could not find that element in the database."
 fi
